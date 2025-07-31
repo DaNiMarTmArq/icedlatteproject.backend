@@ -32,7 +32,7 @@ public class UserService {
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .hashedPassword(passwordEncoder.encode(request.getPassword()))
-                .role(UserModel.Role.user)
+                .role(request.getRole())
                 .dateJoined(LocalDateTime.now())
                 .dateUpdated(LocalDateTime.now())
                 .build();
@@ -44,6 +44,7 @@ public class UserService {
                 .firstName(savedUser.getFirstName())
                 .lastName(savedUser.getLastName())
                 .email(savedUser.getEmail())
+                .role(savedUser.getRole())
                 .build();
     }
 
@@ -62,6 +63,7 @@ public class UserService {
                 .firstName(existingUser.getFirstName())
                 .lastName(existingUser.getLastName())
                 .email(existingUser.getEmail())
+                .role(existingUser.getRole())
                 .build();
     }
 }

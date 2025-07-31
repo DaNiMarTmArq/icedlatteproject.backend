@@ -1,5 +1,6 @@
 package com.danimartinezmarquez.icedlatteproject.api.dtos.user;
 
+import com.danimartinezmarquez.icedlatteproject.api.models.UserModel;
 import lombok.*;
 
 @Getter
@@ -12,4 +13,5 @@ public class UserCreationResponse {
     private String firstName;
     private String lastName;
     private String email;
+    private UserModel.Role role;
 }
