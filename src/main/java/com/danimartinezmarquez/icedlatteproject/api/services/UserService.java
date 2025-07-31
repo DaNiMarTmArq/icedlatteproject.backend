@@ -32,7 +32,9 @@ public class UserService {
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .hashedPassword(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
+                .role("admin".equalsIgnoreCase(request.getRole())
+                        ? UserModel.Role.admin
+                        : UserModel.Role.user)
                 .dateJoined(LocalDateTime.now())
                 .dateUpdated(LocalDateTime.now())
                 .build();

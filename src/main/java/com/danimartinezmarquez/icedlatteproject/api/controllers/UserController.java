@@ -5,13 +5,15 @@ import com.danimartinezmarquez.icedlatteproject.api.dtos.user.UserCreationRespon
 import com.danimartinezmarquez.icedlatteproject.api.dtos.user.UserLoginRequest;
 import com.danimartinezmarquez.icedlatteproject.api.dtos.user.UserRegistrationRequest;
 import com.danimartinezmarquez.icedlatteproject.api.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,7 +26,7 @@ public class UserController {
      * Register a new user
      */
     @PostMapping("/register")
-    public ResponseEntity<UserCreationResponse> register(@RequestBody UserRegistrationRequest request) {
+    public ResponseEntity<UserCreationResponse> register(@Valid @RequestBody UserRegistrationRequest request) {
         UserCreationResponse response = userService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -33,8 +35,19 @@ public class UserController {
      * Login an existing user
      */
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody UserLoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody UserLoginRequest request) {
         LoginResponse response = userService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException exception) {
+        var errors = new HashMap<String, String>();
+
+        exception.getBindingResult().getFieldErrors().forEach( error ->
+                errors.put(error.getField(), error.getDefaultMessage())
+                );
+
+        return ResponseEntity.badRequest().body(errors);
     }
 }
