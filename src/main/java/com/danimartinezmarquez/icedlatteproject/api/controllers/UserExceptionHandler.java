@@ -5,6 +5,7 @@ import com.danimartinezmarquez.icedlatteproject.api.exceptions.UserInvalidCreden
 import com.danimartinezmarquez.icedlatteproject.api.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -37,5 +38,16 @@ public class UserExceptionHandler {
     @ExceptionHandler(UserInvalidCredentialsException.class)
     public ResponseEntity<Object> handleInvalidCredentials(UserInvalidCredentialsException ex) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException exception) {
+        var errors = new HashMap<String, String>();
+
+        exception.getBindingResult().getFieldErrors().forEach( error ->
+                errors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        return ResponseEntity.badRequest().body(errors);
     }
 }
