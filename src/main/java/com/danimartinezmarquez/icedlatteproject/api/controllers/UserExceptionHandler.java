@@ -5,6 +5,7 @@ import com.danimartinezmarquez.icedlatteproject.api.exceptions.UserInvalidCreden
 import com.danimartinezmarquez.icedlatteproject.api.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -49,5 +50,10 @@ public class UserExceptionHandler {
         );
 
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Void> handleSpringBadCredentials() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }
