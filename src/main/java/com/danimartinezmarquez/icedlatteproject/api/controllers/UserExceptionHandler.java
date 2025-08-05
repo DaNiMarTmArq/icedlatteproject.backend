@@ -14,17 +14,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestControllerAdvice(assignableTypes = com.danimartinezmarquez.icedlatteproject.api.controllers.UserController.class)
+@RestControllerAdvice(assignableTypes = com.danimartinezmarquez.icedlatteproject.api.controllers.AuthController.class)
 public class UserExceptionHandler {
-
-    private ResponseEntity<Object> buildErrorResponse(String message, HttpStatus status) {
-        Map<String, Object> errorBody = new HashMap<>();
-        errorBody.put("timestamp", LocalDateTime.now());
-        errorBody.put("status", status.value());
-        errorBody.put("error", status.getReasonPhrase());
-        errorBody.put("message", message);
-        return new ResponseEntity<>(errorBody, status);
-    }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<Object> handleUserAlreadyExists(UserAlreadyExistsException ex) {
@@ -55,5 +46,14 @@ public class UserExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Void> handleSpringBadCredentials() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    private ResponseEntity<Object> buildErrorResponse(String message, HttpStatus status) {
+        Map<String, Object> errorBody = new HashMap<>();
+        errorBody.put("timestamp", LocalDateTime.now());
+        errorBody.put("status", status.value());
+        errorBody.put("error", status.getReasonPhrase());
+        errorBody.put("message", message);
+        return new ResponseEntity<>(errorBody, status);
     }
 }

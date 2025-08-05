@@ -7,6 +7,8 @@ import com.danimartinezmarquez.icedlatteproject.api.dtos.user.UserRegistrationRe
 import com.danimartinezmarquez.icedlatteproject.api.exceptions.*;
 import com.danimartinezmarquez.icedlatteproject.api.models.UserModel;
 import com.danimartinezmarquez.icedlatteproject.api.repositories.UserRepository;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -67,5 +69,9 @@ public class UserService {
                 .email(existingUser.getEmail())
                 .role(existingUser.getRole())
                 .build();
+    }
+
+    public UserModel getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }
