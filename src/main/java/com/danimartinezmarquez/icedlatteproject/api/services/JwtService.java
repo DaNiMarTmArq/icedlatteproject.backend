@@ -57,6 +57,10 @@ public class JwtService {
         return getClaims(token).getSubject();
     }
 
+    public String getClaimFromToken(String token, String claim) {
+        return String.valueOf(getClaims(token).get(claim));
+    }
+
     private Claims getClaims(String token) {
       return Jwts
                 .parser()

@@ -6,6 +6,8 @@ import com.danimartinezmarquez.icedlatteproject.api.dtos.user.UserLoginRequest;
 import com.danimartinezmarquez.icedlatteproject.api.dtos.user.UserRegistrationRequest;
 import com.danimartinezmarquez.icedlatteproject.api.services.JwtService;
 import com.danimartinezmarquez.icedlatteproject.api.services.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -27,11 +29,42 @@ public class AuthController {
     private final UserService userService;
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
+    private final String REFRESH_COOKIE_NAME = "refresh_token";
+    private final Duration REFRESH_COOKIE_TTL = Duration.ofDays(14);
 
-    @PostMapping("/validate")
-    public boolean validateToken(@RequestHeader("Authorization") String authHeader) {
-        var token = authHeader.replace("Bearer ", "");
-        return jwtService.validateToken(token);
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtResponse> refreshAccessToken(HttpServletRequest request) {
+
+        String refreshToken = null;
+        if (request.getCookies() != null) {
+            for (Cookie c : request.getCookies()) {
+                if (REFRESH_COOKIE_NAME.equals(c.getName())) {
+                    refreshToken = c.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (refreshToken == null || refreshToken.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (!jwtService.validateToken(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String email = jwtService.getClaimFromToken(refreshToken, "email");
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        var user = userService.getUserByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        var newAccessToken = jwtService.generateAccessToken(user);
+        return ResponseEntity.ok(new JwtResponse(newAccessToken));
     }
 
     /**
@@ -57,8 +90,7 @@ public class AuthController {
         var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = jwtService.generateAccessToken(user);
 
-       var REFRESH_COOKIE_NAME = "refresh_token";
-       var REFRESH_COOKIE_TTL = Duration.ofDays(14);
+
 
         ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
                 .httpOnly(true)
