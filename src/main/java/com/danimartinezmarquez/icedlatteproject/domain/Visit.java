@@ -1,8 +1,12 @@
 package com.danimartinezmarquez.icedlatteproject.domain;
 
 import lombok.*;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,19 +23,25 @@ public class Visit {
     private Integer visitId;
     private String title;
     private LocalDateTime date;
-    @ToString.Exclude
-    private User creator;
-    @ToString.Exclude
-    private CoffeeShop coffeeShop;
+    private Integer userId;
+    private Integer coffeeShopId;
     @Builder.Default
     @ToString.Exclude
     private List<Comment> comments = new ArrayList<>();
 
-    public float calculateRating() {
-        return (float) comments
-                .stream()
-                .mapToDouble(Comment::getRating)
-                .average()
-                .orElse(0);
+    public List<Comment> getComments() {
+        return Collections.unmodifiableList(comments);
+    }
+
+    public void addComment(Comment comment) {
+        comments.add(comment);
+    }
+
+    public BigDecimal rating() {
+        if (comments.isEmpty()) return BigDecimal.ZERO;
+        BigDecimal sum = comments.stream()
+                .map(Comment::getRating)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return sum.divide(BigDecimal.valueOf(comments.size()), 2, RoundingMode.HALF_UP);
     }
 }

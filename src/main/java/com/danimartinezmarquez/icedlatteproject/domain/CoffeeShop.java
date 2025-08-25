@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class CoffeeShop {
+    private Integer coffeeShopId;
     private String name;
     private String location;
     private BigDecimal locationLatitude;
@@ -22,5 +23,4 @@ public class CoffeeShop {
     private Boolean lactoseFree;
     private Boolean vegetarianOptions;
     private String coverPhotoUrl;
-    private Float rating;
 }

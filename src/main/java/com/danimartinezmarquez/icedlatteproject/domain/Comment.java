@@ -1,6 +1,8 @@
 package com.danimartinezmarquez.icedlatteproject.domain;
 
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter @Setter
@@ -10,9 +12,8 @@ import java.time.LocalDateTime;
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Comment {
-    private Float rating;
+    private BigDecimal rating;
     private String body;
-    @ToString.Exclude
-    private User writer;
+    private Integer userId;
     private LocalDateTime date;
 }
