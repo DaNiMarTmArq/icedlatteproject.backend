@@ -10,17 +10,9 @@ import java.time.LocalDateTime;
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Comment {
-
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    private Integer commentId;
-
     private Float rating;
-
     private String body;
-
     @ToString.Exclude
     private User writer;
-
     private LocalDateTime date;
 }
