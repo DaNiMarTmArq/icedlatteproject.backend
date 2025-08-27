@@ -37,11 +37,11 @@ public class Visit {
         comments.add(comment);
     }
 
-    public BigDecimal rating() {
-        if (comments.isEmpty()) return BigDecimal.ZERO;
-        BigDecimal sum = comments.stream()
-                .map(Comment::getRating)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return sum.divide(BigDecimal.valueOf(comments.size()), 2, RoundingMode.HALF_UP);
+    public Double rating() {
+       if (comments.isEmpty()) return 0.0;
+       return comments.stream()
+               .mapToDouble(Comment::getRating)
+               .average()
+               .orElse(0.0);
     }
 }
