@@ -5,17 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CommentResponse {
-    private Integer commentId;
+public class UpdateCommentRequest {
     private String body;
     private Double rating;
-    private Integer userId;
-    private Integer visitId;
-    private LocalDateTime date;
 }

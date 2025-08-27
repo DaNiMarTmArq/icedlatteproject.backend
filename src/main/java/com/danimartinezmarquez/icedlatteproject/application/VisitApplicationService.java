@@ -99,24 +99,6 @@ public class VisitApplicationService {
         visitRepository.deleteById(visitId);
     }
 
-    public VisitResponse addComment(Integer visitId, AddCommentRequest commentRequest) {
-        validateId(visitId);
-        validateCommentRequest(commentRequest);
-
-        Visit visit = visitRepository.findById(visitId);
-        if (visit == null) {
-            throw new VisitNotFoundException("Visit not found with id: " + visitId);
-        }
-
-        Comment comment = mapCommentRequestToDomain(commentRequest);
-        visit.addComment(comment);
-
-        Visit savedVisit = visitRepository.save(visit);
-        return mapDomainToResponse(savedVisit);
-    }
-
-
-
     private void validateCreateRequest(CreateVisitRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Visit request cannot be null");
@@ -138,22 +120,6 @@ public class VisitApplicationService {
         if (request.getTitle() != null && request.getTitle().trim().isEmpty()) {
             throw new IllegalArgumentException("Visit title cannot be empty if provided");
         }
-    }
-
-    private void validateCommentRequest(AddCommentRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("Comment request cannot be null");
-        }
-        if (request.getBody() == null || request.getBody().trim().isEmpty()) {
-            throw new IllegalArgumentException("Comment body is required");
-        }
-        if (request.getRating() == null) {
-            throw new IllegalArgumentException("Comment rating is required");
-        }
-        if (request.getRating() < 1.0 || request.getRating() > 5.0) {
-            throw new IllegalArgumentException("Rating must be between 1.0 and 5.0");
-        }
-        validateUserId(request.getUserId());
     }
 
     private void validateId(Integer id) {
@@ -208,14 +174,6 @@ public class VisitApplicationService {
         return existingVisit;
     }
 
-    private Comment mapCommentRequestToDomain(AddCommentRequest request) {
-        return Comment.builder()
-                .body(request.getBody().trim())
-                .rating(request.getRating())
-                .userId(request.getUserId())
-                .date(LocalDateTime.now())
-                .build();
-    }
 
     private VisitResponse mapDomainToResponse(Visit visit) {
         List<CommentResponse> commentResponses = visit.getComments().stream()
