@@ -2,8 +2,6 @@ package com.danimartinezmarquez.icedlatteproject.domain;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

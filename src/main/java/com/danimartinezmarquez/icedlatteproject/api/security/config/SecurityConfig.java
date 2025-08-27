@@ -1,4 +1,4 @@
-package com.danimartinezmarquez.icedlatteproject.api.config.security;
+package com.danimartinezmarquez.icedlatteproject.api.security.config;
 
 import com.danimartinezmarquez.icedlatteproject.api.filters.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
