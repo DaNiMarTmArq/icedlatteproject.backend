@@ -27,6 +27,7 @@ public class ImageController {
         return ResponseEntity.ok(dto);
     }
 
+
     @ExceptionHandler(FileExtensionNotValidException.class)
     public ResponseEntity<String> handleInvalidExtension(FileExtensionNotValidException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());

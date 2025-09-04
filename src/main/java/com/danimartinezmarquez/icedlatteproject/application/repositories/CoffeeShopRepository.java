@@ -11,4 +11,6 @@ public interface CoffeeShopRepository {
     List<CoffeeShop> findAll();
     List<CoffeeShop> findByLocation(String trim);
     List<CoffeeShop> findByDietaryOptions(Boolean glutenFree, Boolean lactoseFree, Boolean vegetarianOptions);
+    List<CoffeeShop> findByName(String name);
+    List<CoffeeShop> searchByName(String partialName);
 }

@@ -2,6 +2,7 @@ package com.danimartinezmarquez.icedlatteproject.application;
 
 import com.danimartinezmarquez.icedlatteproject.application.dtos.CoffeeShopResponse;
 import com.danimartinezmarquez.icedlatteproject.application.dtos.CreateCoffeeShopRequest;
+import com.danimartinezmarquez.icedlatteproject.application.errors.CoffeeShopAlreadyExistException;
 import com.danimartinezmarquez.icedlatteproject.application.errors.CoffeeShopNotFoundException;
 import com.danimartinezmarquez.icedlatteproject.application.repositories.CoffeeShopRepository;
 import com.danimartinezmarquez.icedlatteproject.domain.CoffeeShop;
@@ -19,6 +20,11 @@ public class CoffeeShopApplicationService {
     public CoffeeShopResponse createNew(CreateCoffeeShopRequest newShopRequest) {
         validateRequest(newShopRequest);
 
+        List<CoffeeShop> existing = coffeeShopRepository.findByName(newShopRequest.getName().trim());
+        if (!existing.isEmpty()) {
+            throw new CoffeeShopAlreadyExistException("Coffee shop already exists with name: " + newShopRequest.getName());
+        }
+
         CoffeeShop coffeeShop = mapRequestToDomain(newShopRequest);
         CoffeeShop savedCoffeeShop = coffeeShopRepository.save(coffeeShop);
 
@@ -34,6 +40,30 @@ public class CoffeeShopApplicationService {
         }
 
         return mapDomainToResponse(coffeeShop);
+    }
+
+    public List<CoffeeShopResponse> getByFullName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty");
+        }
+
+        List<CoffeeShop> coffeeShops = coffeeShopRepository.findByName(name.trim());
+        if (coffeeShops.isEmpty()) {
+            throw new CoffeeShopNotFoundException("No coffee shops found with name: " + name);
+        }
+
+        return coffeeShops.stream()
+                .map(this::mapDomainToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<CoffeeShopResponse> searchByName(String partialName) {
+        validateName(partialName);
+
+        List<CoffeeShop> coffeeShops = coffeeShopRepository.searchByName(partialName.trim());
+        return coffeeShops.stream()
+                .map(this::mapDomainToResponse)
+                .collect(Collectors.toList());
     }
 
     public List<CoffeeShopResponse> getAll() {
@@ -62,6 +92,12 @@ public class CoffeeShopApplicationService {
     private void validateId(Integer id) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Coffee shop ID must be a positive integer");
+        }
+    }
+
+    private void validateName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty");
         }
     }
 
