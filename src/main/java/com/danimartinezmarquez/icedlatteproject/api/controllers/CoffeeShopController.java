@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/coffeeshops")
+@RequestMapping("/api/coffee-shops")
 @AllArgsConstructor
 public class CoffeeShopController {
 
@@ -34,18 +34,18 @@ public class CoffeeShopController {
         return coffeeShopService.getAll();
     }
 
-    @GetMapping("/name")
-    public List<CoffeeShopResponse> getByFullName(@RequestParam String name) {
-        return coffeeShopService.getByFullName(name);
+    @GetMapping("/name/{fullName}")
+    public List<CoffeeShopResponse> getByFullName(@PathVariable String fullName) {
+        return coffeeShopService.getByFullName(fullName);
     }
 
     @GetMapping("/search")
-    public List<CoffeeShopResponse> searchByName(@RequestParam String partialName) {
-        return coffeeShopService.searchByName(partialName);
+    public List<CoffeeShopResponse> searchByName(@RequestParam String query) {
+        return coffeeShopService.searchByName(query);
     }
 
-    @GetMapping("/location")
-    public List<CoffeeShopResponse> getByLocation(@RequestParam String location) {
+    @GetMapping("/location/{location}")
+    public List<CoffeeShopResponse> getByLocation(@PathVariable String location) {
         return coffeeShopService.getByLocation(location);
     }
 
