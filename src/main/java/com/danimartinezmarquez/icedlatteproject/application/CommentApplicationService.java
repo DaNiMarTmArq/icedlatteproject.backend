@@ -34,10 +34,6 @@ public class CommentApplicationService {
         Comment comment = mapAddRequestToDomain(commentRequest, visitId);
         Comment savedComment = commentRepository.save(comment);
 
-        // Add comment to visit domain object and save
-        visit.addComment(savedComment);
-        visitRepository.save(visit);
-
         return mapDomainToResponse(savedComment);
     }
 

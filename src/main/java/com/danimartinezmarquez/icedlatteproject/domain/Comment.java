@@ -16,4 +16,5 @@ public class Comment {
     private Integer userId;
     private Integer visitId;
     private LocalDateTime date;
+    private Integer coffeeShopId;
 }

@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -18,7 +19,7 @@ public class CommentModel {
     private Integer commentId;
 
     @Column(name = "rating", nullable = false)
-    private Float rating;
+    private Double rating;
 
     @Lob
     @Column(name = "body")
@@ -27,9 +28,8 @@ public class CommentModel {
     @Column(name = "user_id", nullable = false)
     private Integer userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "visit_id", foreignKey = @ForeignKey(name = "fk_comments_visit_id"))
-    private VisitModel visit;
+    @Column(name = "visit_id")
+    private Integer visitId;
 
     @Column(name = "coffee_shop_id")
     private Integer coffeeShopId;

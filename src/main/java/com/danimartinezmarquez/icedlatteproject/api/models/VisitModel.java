@@ -6,7 +6,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -35,6 +36,7 @@ public class VisitModel {
     private Integer createdByUserId;
 
     @Builder.Default
-    @OneToMany(mappedBy = "visit", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = false)
+    @JoinColumn(name = "visit_id", referencedColumnName = "visit_id")
     private List<CommentModel> comments = new ArrayList<>();
 }
