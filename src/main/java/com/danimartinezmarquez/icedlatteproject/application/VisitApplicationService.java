@@ -193,9 +193,11 @@ public class VisitApplicationService {
 
     private CommentResponse mapCommentToResponse(Comment comment) {
         return CommentResponse.builder()
+                .commentId(comment.getCommentId())
                 .body(comment.getBody())
                 .rating(comment.getRating())
                 .userId(comment.getUserId())
+                .visitId(comment.getVisitId())
                 .date(comment.getDate())
                 .build();
     }

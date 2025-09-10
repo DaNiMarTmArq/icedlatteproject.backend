@@ -1,8 +1,10 @@
 package com.danimartinezmarquez.icedlatteproject.api.repositories;
 
+import com.danimartinezmarquez.icedlatteproject.api.models.CommentModel;
 import com.danimartinezmarquez.icedlatteproject.api.models.VisitModel;
 import com.danimartinezmarquez.icedlatteproject.api.repositories.jpa.VisitJpaRepository;
 import com.danimartinezmarquez.icedlatteproject.application.repositories.VisitRepository;
+import com.danimartinezmarquez.icedlatteproject.domain.Comment;
 import com.danimartinezmarquez.icedlatteproject.domain.Visit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -62,6 +64,18 @@ public class MySQLVisitRepository implements VisitRepository {
                 .date(m.getDate())
                 .userId(m.getCreatedByUserId())
                 .coffeeShopId(m.getCoffeeShopId())
+                .comments(
+                        m.getComments().stream()
+                                .map(c -> Comment.builder()
+                                        .commentId(c.getCommentId())
+                                        .body(c.getBody())
+                                        .rating(c.getRating())
+                                        .userId(c.getUserId())
+                                        .visitId(c.getVisitId())
+                                        .date(c.getDate())
+                                        .build())
+                                        .collect(Collectors.toList())
+                )
                 .build();
     }
 
@@ -73,6 +87,20 @@ public class MySQLVisitRepository implements VisitRepository {
                 .date(v.getDate())
                 .createdByUserId(v.getUserId())
                 .coffeeShopId(v.getCoffeeShopId())
+                .comments(
+                        v.getComments().stream()
+                                .map(c -> CommentModel.builder()
+                                        .commentId(c.getCommentId())
+                                        .body(c.getBody())
+                                        .rating(c.getRating())
+                                        .userId(c.getUserId())
+                                        .visitId(v.getVisitId())
+                                        .coffeeShopId(v.getCoffeeShopId())
+                                        .date(c.getDate())
+                                        .build()
+                                )
+                                .collect(Collectors.toList())
+                )
                 .build();
     }
 }
