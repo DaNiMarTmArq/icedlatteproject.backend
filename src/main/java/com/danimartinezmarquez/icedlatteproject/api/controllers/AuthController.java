@@ -97,7 +97,7 @@ public class AuthController {
                 .secure(true)
                 .path("/")
                 .maxAge(REFRESH_COOKIE_TTL)
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
 
         return ResponseEntity.ok()
