@@ -1,7 +1,11 @@
 package com.danimartinezmarquez.icedlatteproject.api.services;
 
-import com.danimartinezmarquez.icedlatteproject.api.dtos.PresignedPutURLDto;
+import com.danimartinezmarquez.icedlatteproject.api.dtos.images.ImageMetadataDto;
+import com.danimartinezmarquez.icedlatteproject.api.dtos.images.PresignedPutURLDto;
+import com.danimartinezmarquez.icedlatteproject.api.dtos.images.SaveImageRequestDto;
 import com.danimartinezmarquez.icedlatteproject.api.exceptions.FileExtensionNotValidException;
+import com.danimartinezmarquez.icedlatteproject.api.models.PhotoModel;
+import com.danimartinezmarquez.icedlatteproject.api.repositories.jpa.PhotoJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -10,6 +14,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+import java.awt.*;
 import java.time.Duration;
 import java.util.Locale;
 import java.util.Map;
@@ -27,6 +32,8 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class ImageService {
+
+    private final PhotoJpaRepository photoJpaRepository;
 
     private static final Map<String, String> IMAGE_CONTENT_TYPES = Map.of(
             "jpg", "image/jpeg",
@@ -88,6 +95,32 @@ public class ImageService {
 
         long expiresInSeconds = ttl.toSeconds();
         return new PresignedPutURLDto(presigned.url().toExternalForm(), (int) expiresInSeconds);
+    }
+
+    /**
+     * Save image metadata to the database after upload.
+     *
+     * @param dto request DTO containing metadata
+     * @return the saved entity metadata
+     */
+    public ImageMetadataDto saveImageMetadata(SaveImageRequestDto dto) {
+
+        if (photoJpaRepository.existsByBucketNameAndPhotoPath(bucketName, dto.getPhotoPath())) {
+            throw new IllegalArgumentException("Image with the same key already exists.");
+        }
+
+        PhotoModel photo = PhotoModel.builder()
+                .bucketName(bucketName)
+                .photoPath(dto.getPhotoPath())
+                .userId(dto.getUserId())
+                .coffeeShopId(dto.getCoffeeShopId())
+                .commentId(dto.getCommentId())
+                .build();
+
+        photoJpaRepository.save(photo);
+        return ImageMetadataDto.builder()
+                .photoPath(photo.getPhotoPath())
+                .build();
     }
 
 

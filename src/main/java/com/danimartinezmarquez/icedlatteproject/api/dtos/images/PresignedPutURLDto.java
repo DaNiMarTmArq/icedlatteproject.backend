@@ -1,4 +1,4 @@
-package com.danimartinezmarquez.icedlatteproject.api.dtos;
+package com.danimartinezmarquez.icedlatteproject.api.dtos.images;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

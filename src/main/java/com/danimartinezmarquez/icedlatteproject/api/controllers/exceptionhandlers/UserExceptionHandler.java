@@ -1,4 +1,4 @@
-package com.danimartinezmarquez.icedlatteproject.api.controllers;
+package com.danimartinezmarquez.icedlatteproject.api.controllers.exceptionhandlers;
 
 import com.danimartinezmarquez.icedlatteproject.api.exceptions.UserAlreadyExistsException;
 import com.danimartinezmarquez.icedlatteproject.api.exceptions.UserInvalidCredentialsException;
