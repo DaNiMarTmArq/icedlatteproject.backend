@@ -1,20 +1,24 @@
 package com.danimartinezmarquez.icedlatteproject.api.services;
 
+import com.danimartinezmarquez.icedlatteproject.api.dtos.images.ImageDto;
 import com.danimartinezmarquez.icedlatteproject.api.dtos.images.ImageMetadataDto;
 import com.danimartinezmarquez.icedlatteproject.api.dtos.images.PresignedPutURLDto;
 import com.danimartinezmarquez.icedlatteproject.api.dtos.images.SaveImageRequestDto;
 import com.danimartinezmarquez.icedlatteproject.api.exceptions.FileExtensionNotValidException;
 import com.danimartinezmarquez.icedlatteproject.api.models.PhotoModel;
 import com.danimartinezmarquez.icedlatteproject.api.repositories.jpa.PhotoJpaRepository;
+import com.danimartinezmarquez.icedlatteproject.api.utils.Result;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
-import java.awt.*;
 import java.time.Duration;
 import java.util.Locale;
 import java.util.Map;
@@ -98,6 +102,44 @@ public class ImageService {
     }
 
     /**
+     * Create a presigned GET URL for an image key if it exists in DB.
+     *
+     * @param imageKey the relative path (e.g. "users/123/avatar.png")
+     * @return Result containing the presigned URL if found, or empty if not
+     */
+    public Result<ImageDto> createPresignedGetRequest(String imageKey) {
+        String sanitizedKey = sanitizeKey(imageKey);
+        String objectKey = joinFolderAndKey(normalizeFolder(imageFolder), sanitizedKey);
+
+        boolean exists = photoJpaRepository.existsByBucketNameAndPhotoPath(bucketName, objectKey);
+        if (!exists) {
+            return Result.empty();
+        }
+
+        Duration ttl = Duration.ofMinutes(ttlMinutes);
+
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(objectKey)
+                .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(ttl)
+                .getObjectRequest(getObjectRequest)
+                .build();
+
+        PresignedGetObjectRequest presigned = presigner.presignGetObject(presignRequest);
+
+        ImageDto dto = ImageDto.builder()
+                .imagePath(objectKey)
+                .imageURL(presigned.url().toString())
+                .expiresInSeconds((int) ttl.toSeconds())
+                .build();
+
+        return Result.of(dto);
+    }
+
+    /**
      * Save image metadata to the database after upload.
      *
      * @param dto request DTO containing metadata
@@ -105,13 +147,16 @@ public class ImageService {
      */
     public ImageMetadataDto saveImageMetadata(SaveImageRequestDto dto) {
 
-        if (photoJpaRepository.existsByBucketNameAndPhotoPath(bucketName, dto.getPhotoPath())) {
+        String sanitizedKey = sanitizeKey(dto.getPhotoPath());
+        String objectKey = joinFolderAndKey(normalizeFolder(imageFolder), sanitizedKey);
+
+        if (photoJpaRepository.existsByBucketNameAndPhotoPath(bucketName, objectKey)) {
             throw new IllegalArgumentException("Image with the same key already exists.");
         }
 
         PhotoModel photo = PhotoModel.builder()
                 .bucketName(bucketName)
-                .photoPath(dto.getPhotoPath())
+                .photoPath(objectKey)
                 .userId(dto.getUserId())
                 .coffeeShopId(dto.getCoffeeShopId())
                 .commentId(dto.getCommentId())
@@ -150,7 +195,7 @@ public class ImageService {
         if (trimmed.startsWith("/") || trimmed.contains("..")) {
             throw new IllegalArgumentException("Illegal file key.");
         }
-        // collapse redundant slashes
+
         return trimmed.replace("\\", "/").replaceAll("/{2,}", "/");
     }
 

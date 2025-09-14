@@ -1,17 +1,19 @@
 package com.danimartinezmarquez.icedlatteproject.api.controllers;
 
-import com.danimartinezmarquez.icedlatteproject.api.dtos.images.ImageMetadataDto;
-import com.danimartinezmarquez.icedlatteproject.api.dtos.images.PresignedPutURLDto;
-import com.danimartinezmarquez.icedlatteproject.api.dtos.images.SaveImageRequestDto;
+import com.danimartinezmarquez.icedlatteproject.api.dtos.images.*;
 import com.danimartinezmarquez.icedlatteproject.api.exceptions.FileExtensionNotValidException;
 import com.danimartinezmarquez.icedlatteproject.api.models.PhotoModel;
 import com.danimartinezmarquez.icedlatteproject.api.repositories.jpa.PhotoJpaRepository;
 import com.danimartinezmarquez.icedlatteproject.api.services.ImageService;
+import com.danimartinezmarquez.icedlatteproject.api.utils.Result;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.net.URI;
 
@@ -46,10 +48,17 @@ public class ImageController {
     public ResponseEntity<ImageMetadataDto> saveImageInfo(@Valid @RequestBody SaveImageRequestDto request) {
         ImageMetadataDto saved = imageService.saveImageMetadata(request);
 
-        URI location = URI.create(String.format("/api/images/%s", saved.getPhotoPath()));
+        URI location = URI.create(String.format("/api/images/get/%s", saved.getPhotoPath()));
         return ResponseEntity.created(location).body(saved);
     }
 
+    @GetMapping("/get/{imageKey}")
+    public ResponseEntity<?> getImageByKey(@PathVariable String imageKey) {
+        Result<ImageDto> imageResult = imageService.createPresignedGetRequest(imageKey);
+        if (imageResult.isEmpty())
+            return new ResponseEntity<>("Image with key " + imageKey + " not found.", HttpStatus.NOT_FOUND);
+        return ResponseEntity.ok(imageResult.get());
+    }
 
 
     @ExceptionHandler(FileExtensionNotValidException.class)
