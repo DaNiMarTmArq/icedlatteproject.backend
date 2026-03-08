@@ -92,7 +92,7 @@ public class AuthController {
             }
 
             var accessToken = jwtService.generateAccessToken(user);
-            var refreshToken = jwtService.generateAccessToken(user);
+            var refreshToken = jwtService.generateRefreshToken(user);
 
             ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
                     .httpOnly(true)
