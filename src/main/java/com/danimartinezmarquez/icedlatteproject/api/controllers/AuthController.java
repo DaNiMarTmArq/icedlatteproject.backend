@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -81,28 +82,34 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody UserLoginRequest request) {
-        //LoginResponse response = userService.login(request);
-        Authentication authToken = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
-        authManager.authenticate(authToken);
+        try {
+            Authentication authToken = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+            authManager.authenticate(authToken);
 
-        var user = userService.getUserByEmail(request.getEmail());
+            var user = userService.getUserByEmail(request.getEmail());
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
 
-        var accessToken = jwtService.generateAccessToken(user);
-        var refreshToken = jwtService.generateAccessToken(user);
+            var accessToken = jwtService.generateAccessToken(user);
+            var refreshToken = jwtService.generateAccessToken(user);
 
+            ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(REFRESH_COOKIE_TTL)
+                    .sameSite("None")
+                    .build();
 
-
-        ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(REFRESH_COOKIE_TTL)
-                .sameSite("None")
-                .build();
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(new JwtResponse(accessToken));
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                    .body(new JwtResponse(accessToken));
+        } catch (AuthenticationException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 }
