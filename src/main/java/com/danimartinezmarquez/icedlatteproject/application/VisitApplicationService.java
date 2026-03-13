@@ -5,6 +5,7 @@ import com.danimartinezmarquez.icedlatteproject.application.errors.CoffeeShopNot
 import com.danimartinezmarquez.icedlatteproject.application.errors.VisitNotFoundException;
 import com.danimartinezmarquez.icedlatteproject.application.repositories.CoffeeShopRepository;
 import com.danimartinezmarquez.icedlatteproject.application.repositories.VisitRepository;
+import com.danimartinezmarquez.icedlatteproject.domain.CoffeeShop;
 import com.danimartinezmarquez.icedlatteproject.domain.Comment;
 import com.danimartinezmarquez.icedlatteproject.domain.Visit;
 import lombok.AllArgsConstructor;
@@ -185,9 +186,27 @@ public class VisitApplicationService {
                 .title(visit.getTitle())
                 .date(visit.getDate())
                 .userId(visit.getUserId())
-                .coffeeShopId(visit.getCoffeeShopId())
+                .coffeeShop(mapCoffeeShopToResponse(visit.getCoffeeShop()))
                 .comments(commentResponses)
                 .rating(visit.rating())
+                .build();
+    }
+
+    private CoffeeShopResponse mapCoffeeShopToResponse(CoffeeShop coffeeShop) {
+        if (coffeeShop == null) {
+            return null;
+        }
+
+        return CoffeeShopResponse.builder()
+                .coffeeShopId(coffeeShop.getCoffeeShopId())
+                .name(coffeeShop.getName())
+                .location(coffeeShop.getLocation())
+                .locationLatitude(coffeeShop.getLocationLatitude())
+                .locationLongitude(coffeeShop.getLocationLongitude())
+                .glutenFree(coffeeShop.getGlutenFree())
+                .lactoseFree(coffeeShop.getLactoseFree())
+                .vegetarianOptions(coffeeShop.getVegetarianOptions())
+                .coverPhotoUrl(coffeeShop.getCoverPhotoUrl())
                 .build();
     }
 

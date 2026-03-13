@@ -32,6 +32,10 @@ public class VisitModel {
     @Column(name = "coffee_shop_id")
     private Integer coffeeShopId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coffee_shop_id", referencedColumnName = "coffee_shop_id", insertable = false, updatable = false)
+    private CoffeeShopModel coffeeShop;
+
     @Column(name = "created_by_user_id", nullable = false)
     private Integer createdByUserId;
 

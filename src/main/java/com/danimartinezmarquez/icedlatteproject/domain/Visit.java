@@ -22,6 +22,7 @@ public class Visit {
     private LocalDateTime date;
     private Integer userId;
     private Integer coffeeShopId;
+    private CoffeeShop coffeeShop;
     @Builder.Default
     @ToString.Exclude
     private List<Comment> comments = new ArrayList<>();

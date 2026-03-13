@@ -4,6 +4,7 @@ import com.danimartinezmarquez.icedlatteproject.api.models.CommentModel;
 import com.danimartinezmarquez.icedlatteproject.api.models.VisitModel;
 import com.danimartinezmarquez.icedlatteproject.api.repositories.jpa.VisitJpaRepository;
 import com.danimartinezmarquez.icedlatteproject.application.repositories.VisitRepository;
+import com.danimartinezmarquez.icedlatteproject.domain.CoffeeShop;
 import com.danimartinezmarquez.icedlatteproject.domain.Comment;
 import com.danimartinezmarquez.icedlatteproject.domain.Visit;
 import lombok.RequiredArgsConstructor;
@@ -64,6 +65,7 @@ public class MySQLVisitRepository implements VisitRepository {
                 .date(m.getDate())
                 .userId(m.getCreatedByUserId())
                 .coffeeShopId(m.getCoffeeShopId())
+                .coffeeShop(toCoffeeShopDomain(m))
                 .comments(
                         m.getComments().stream()
                                 .map(c -> Comment.builder()
@@ -74,8 +76,26 @@ public class MySQLVisitRepository implements VisitRepository {
                                         .visitId(c.getVisitId())
                                         .date(c.getDate())
                                         .build())
-                                        .collect(Collectors.toList())
+                .collect(Collectors.toList())
                 )
+                .build();
+    }
+
+    private CoffeeShop toCoffeeShopDomain(VisitModel visitModel) {
+        if (visitModel == null || visitModel.getCoffeeShop() == null) {
+            return null;
+        }
+
+        return CoffeeShop.builder()
+                .coffeeShopId(visitModel.getCoffeeShop().getCoffeeShopId())
+                .name(visitModel.getCoffeeShop().getName())
+                .location(visitModel.getCoffeeShop().getLocation())
+                .locationLatitude(visitModel.getCoffeeShop().getLocationLatitude())
+                .locationLongitude(visitModel.getCoffeeShop().getLocationLongitude())
+                .glutenFree(visitModel.getCoffeeShop().isGlutenFree())
+                .lactoseFree(visitModel.getCoffeeShop().isLactoseFree())
+                .vegetarianOptions(visitModel.getCoffeeShop().isVegetarianOptions())
+                .coverPhotoUrl(visitModel.getCoffeeShop().getCoverPhotoUrl())
                 .build();
     }
 

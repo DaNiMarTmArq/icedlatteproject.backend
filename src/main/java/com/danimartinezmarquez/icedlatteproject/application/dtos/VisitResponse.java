@@ -17,7 +17,7 @@ public class VisitResponse {
     private String title;
     private LocalDateTime date;
     private Integer userId;
-    private Integer coffeeShopId;
+    private CoffeeShopResponse coffeeShop;
     private List<CommentResponse> comments;
     private Double rating;
 }
